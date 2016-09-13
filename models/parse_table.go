@@ -4,10 +4,16 @@ import (
 	"strings"
 )
 
+const (
+	packageSql  string = "database/sql"
+	packageTime string = "time"
+)
+
 type ParseTable struct {
-	Name        string // 数据表名，如：ad_plan，对应结构体名为：AdPlanTable，对应文件名为：gen_ad_plan.go
-	PackageName string // 生成的程序的包名
-	PrimaryType string // 主键的类型，如：uint32, sql.NullString等
+	Name        string   // 数据表名，如：ad_plan，对应结构体名为：AdPlanTable，对应文件名为：gen_ad_plan.go
+	PackageName string   // 生成的程序的包名
+	PrimaryType string   // 主键的类型，如：uint32, sql.NullString等
+	Imports     []string // 需要import的包
 	Fields      []ParseField
 }
 
@@ -23,7 +29,7 @@ func ParseTablesStruct(tables []Table, package_name string) (parse_tables []Pars
 			Name:        table.Name,
 			PackageName: package_name,
 		}
-		ptable.Fields, ptable.PrimaryType = ParseFieldsStruct(table.Fields)
+		ptable.Fields, ptable.Imports, ptable.PrimaryType = ParseFieldsStruct(table.Fields)
 
 		// 生成代码文件
 		GenFile(ptable)
@@ -35,7 +41,7 @@ func ParseTablesStruct(tables []Table, package_name string) (parse_tables []Pars
 }
 
 // 解释一个数据表的所有字段
-func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type string) {
+func ParseFieldsStruct(fields []Field) (pfields []ParseField, imports []string, primary_type string) {
 	for _, f := range fields {
 		pf := ParseField{
 			Name: f.Name,
@@ -45,6 +51,7 @@ func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type strin
 			// 字符串
 			if f.Null == "YES" {
 				pf.Type = "sql.NullString"
+				imports = importsPush(imports, packageSql)
 			} else {
 				pf.Type = "string"
 			}
@@ -52,6 +59,7 @@ func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type strin
 			// 整型
 			if f.Null == "YES" {
 				pf.Type = "sql.NullInt64"
+				imports = importsPush(imports, packageSql)
 			} else {
 				prefix := ""
 				if strings.Contains(f.Type, "unsigned") {
@@ -72,6 +80,7 @@ func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type strin
 			// 浮点数
 			if f.Null == "YES" {
 				pf.Type = "sql.NullFloat64"
+				imports = importsPush(imports, packageSql)
 			} else {
 				pf.Type = "float"
 			}
@@ -79,6 +88,7 @@ func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type strin
 			// 高精度浮点数
 			if f.Null == "YES" {
 				pf.Type = "sql.NullFloat64"
+				imports = importsPush(imports, packageSql)
 			} else {
 				pf.Type = "float64"
 			}
@@ -86,21 +96,39 @@ func ParseFieldsStruct(fields []Field) (pfields []ParseField, primary_type strin
 			// 年份
 			if f.Null == "YES" {
 				pf.Type = "sql.NullInt64"
+				imports = importsPush(imports, packageSql)
 			} else {
 				pf.Type = "uint16"
 			}
 		} else if strings.Contains(f.Type, "datetime") || strings.Contains(f.Type, "timestamp") || strings.Contains(f.Type, "date") {
 			// 日期时间
 			pf.Type = "time.Time"
+			imports = importsPush(imports, packageTime)
 		}
 
 		pfields = append(pfields, pf)
 	}
 
-	return pfields, primary_type
+	return pfields, imports, primary_type
 }
 
 // 判断是否是字符串
 func isString(field_type string) bool {
 	return strings.Contains(field_type, "text") || strings.Contains(field_type, "char") || strings.Contains(field_type, "binary") || strings.Contains(field_type, "blob")
+}
+
+func importsPush(imports []string, packagename string) []string {
+	is_exists := false
+	for _, pn := range imports {
+		if pn == packagename {
+			is_exists = true
+			break
+		}
+	}
+
+	if !is_exists {
+		imports = append(imports, packagename)
+	}
+
+	return imports
 }

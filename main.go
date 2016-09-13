@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/ibbd-dev/go-db-models/models"
 )
@@ -71,8 +73,25 @@ func main() {
 	}
 
 	tables := db_conf.ShowTables()
-	fmt.Println(tables)
+	//fmt.Println(tables)
 
-	ptables := models.ParseTablesStruct(tables, *packagename)
-	fmt.Println(ptables)
+	_ = models.ParseTablesStruct(tables, *packagename)
+	//fmt.Println(ptables)
+
+	runFmt()
+	fmt.Println("\nAll is ok!")
+}
+
+func runFmt() {
+	in := bytes.NewBuffer(nil)
+	cmd := exec.Command("sh")
+	cmd.Stdin = in
+	go func() {
+		in.WriteString("go fmt\n")
+		in.WriteString("exit\n")
+	}()
+
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
 }
