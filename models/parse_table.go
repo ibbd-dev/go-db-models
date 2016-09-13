@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	// 可能需要额外引入的包
 	packageSql  string = "database/sql"
 	packageTime string = "time"
 )
