@@ -20,16 +20,18 @@ OPTIONS
         数据库的用户名
     -p, -password
         数据库密码
-    -h, -host
+    -o, -host
         数据库的host，默认为：127.0.0.1
     -r, -port
         数据库的端口号，默认为：3306
+    -n, -package
+        生成的go文件的包名
     -v, -version
         Print version and exit.
     -h, -help
         Print help and exit.
 
 EXAMPLES
-    goscan -h host -d database_name -u username -p password 
+    goscan -o host -d database_name -u username -p password 
 `
 )

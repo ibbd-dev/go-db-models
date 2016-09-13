@@ -44,9 +44,15 @@ func main() {
 	fmt.Println("**********************************")
 	//}
 
-	if *help || len(*packagename) == 0 {
+	if *help {
 		// not an error, send to stdout
 		// that way people can: scaneo -h | less
+		fmt.Println(usageText)
+		return
+	}
+
+	if len(*packagename) == 0 {
+		fmt.Println("packagename is empty! use -n or --package")
 		fmt.Println(usageText)
 		return
 	}

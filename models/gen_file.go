@@ -14,7 +14,8 @@ func GenFile(table ParseTable) {
 	}
 	defer fout.Close()
 
-	code, err := template.New("gomodels").Parse(codeTemplate)
+	fnMap := template.FuncMap{"Format2StructName": Format2StructName}
+	code, err := template.New("gomodels").Funcs(fnMap).Parse(codeTemplate)
 	if err != nil {
 		panic(err)
 	}
