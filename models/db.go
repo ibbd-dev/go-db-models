@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// 数据库配置
 type DbConf struct {
 	Host     string
 	Port     int
@@ -23,9 +24,10 @@ type Table struct {
 
 // 字段定义
 type Field struct {
-	Field   string
+	Name    string
 	Type    string
 	Null    string
+	Key     string
 	Default sql.NullString
 }
 
@@ -83,11 +85,11 @@ func (conf *DbConf) DescTable(table_name string, db *sql.DB) []Field {
 	}
 	defer rows.Close()
 
-	var tmp sql.NullString
+	var extra sql.NullString
 	fields := []Field{}
 	for rows.Next() {
 		f := Field{}
-		err = rows.Scan(&f.Field, &f.Type, &f.Null, &tmp, &f.Default, &tmp)
+		err = rows.Scan(&f.Name, &f.Type, &f.Null, &f.Key, &f.Default, &extra)
 		if err != nil {
 			panic(err.Error())
 		}

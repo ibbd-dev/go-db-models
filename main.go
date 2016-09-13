@@ -16,6 +16,7 @@ func main() {
 	charset := flag.String("c", "utf8", "")
 	username := flag.String("u", "", "")
 	password := flag.String("p", "", "")
+	packagename := flag.String("n", "", "")
 	host := flag.String("o", "127.0.0.1", "")
 	port := flag.Int("r", 3306, "")
 	version := flag.Bool("v", false, "")
@@ -25,24 +26,25 @@ func main() {
 	flag.StringVar(username, "username", "", "")
 	flag.StringVar(password, "password", "", "")
 	flag.StringVar(host, "host", "127.0.0.1", "")
+	flag.StringVar(packagename, "package", "", "")
 	flag.IntVar(port, "port", 3306, "")
 	flag.BoolVar(version, "version", false, "")
 	flag.BoolVar(help, "help", false, "")
 	flag.Usage = func() { log.Println(usageText) } // call on flag error
 	flag.Parse()
 
-	if debug {
-		fmt.Println("**********************************")
-		fmt.Printf("database: %s\n", *database)
-		fmt.Printf("charset: %s\n", *charset)
-		fmt.Printf("username: %s\n", *username)
-		fmt.Printf("password: %s\n", *password)
-		fmt.Printf("host: %s\n", *host)
-		fmt.Printf("port: %d\n", *port)
-		fmt.Println("**********************************")
-	}
+	//if debug {
+	fmt.Println("**********************************")
+	fmt.Printf("database: %s\n", *database)
+	fmt.Printf("charset: %s\n", *charset)
+	fmt.Printf("username: %s\n", *username)
+	fmt.Printf("password: %s\n", *password)
+	fmt.Printf("host: %s\n", *host)
+	fmt.Printf("port: %d\n", *port)
+	fmt.Println("**********************************")
+	//}
 
-	if *help {
+	if *help || len(*packagename) == 0 {
 		// not an error, send to stdout
 		// that way people can: scaneo -h | less
 		fmt.Println(usageText)
@@ -54,14 +56,17 @@ func main() {
 		return
 	}
 
-	files_arr := flag.Args()
-	if len(files_arr) != 1 {
-		log.Println("Error: 需要一个文件名参数")
-		log.Fatal(usageText)
+	db_conf := &models.DbConf{
+		Host:     *host,
+		Port:     *port,
+		DbName:   *database,
+		UserName: *username,
+		Password: *password,
 	}
 
-	file := files_arr[0]
-	if debug {
-		fmt.Printf("input json files: %+v\n", file)
-	}
+	tables := db_conf.ShowTables()
+	fmt.Println(tables)
+
+	ptables := models.ParseTablesStruct(tables, *packagename)
+	fmt.Println(ptables)
 }
