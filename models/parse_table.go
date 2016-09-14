@@ -24,13 +24,28 @@ type ParseField struct {
 }
 
 // 解释数据表的结构体
-func ParseTablesStruct(tables []Table, package_name string) (parse_tables []ParseTable) {
+func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonConf) (parse_tables []ParseTable) {
+	// 配置的预处理
+	var modelsConfMap = map[string]map[string]bool{}
+	if len(models_conf.Tables) > 0 {
+		for _, tb := range models_conf.Tables {
+			modelsConfMap[tb.Name] = map[string]bool{}
+			for _, f := range tb.Fields {
+				modelsConfMap[tb.Name][f] = true
+			}
+		}
+	}
+
 	for _, table := range tables {
+		if len(models_conf.Tables) > 0 && modelsConfMap[table.Name] == nil {
+			continue
+		}
+
 		ptable := ParseTable{
 			Name:        table.Name,
 			PackageName: package_name,
 		}
-		ptable.Fields, ptable.Imports, ptable.PrimaryType = ParseFieldsStruct(table.Fields)
+		ptable.Fields, ptable.Imports, ptable.PrimaryType = ParseFieldsStruct(table.Fields, modelsConfMap[table.Name])
 
 		// 生成代码文件
 		GenFile(ptable)
@@ -42,8 +57,12 @@ func ParseTablesStruct(tables []Table, package_name string) (parse_tables []Pars
 }
 
 // 解释一个数据表的所有字段
-func ParseFieldsStruct(fields []Field) (pfields []ParseField, imports []string, primary_type string) {
+func ParseFieldsStruct(fields []Field, fields_conf map[string]bool) (pfields []ParseField, imports []string, primary_type string) {
 	for _, f := range fields {
+		if fields_conf != nil && fields_conf[f.Name] == false {
+			continue
+		}
+
 		pf := ParseField{
 			Name: f.Name,
 		}

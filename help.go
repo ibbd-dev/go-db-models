@@ -6,10 +6,10 @@ const (
 	versionText = "go-db-models v1.0"
 
 	usageText = `GOMODELSSCAN
-    根据定义从数据库生成定义结构，每个数据表生成一个对应go文件，包括数据结构定义，及两种基本的查询功能，文件名和数据表名对应。
+    根据定义从数据库生成定义结构，每个数据表生成一个对应go文件，包括数据结构定义，及两种基本的查询功能，文件名和数据表名对应。如果json-filepath为空，则生成所有的数据表的结构体。
 
 USAGE
-    go-db-models [options] 
+    go-db-models [options] [json-filepath]
 
 OPTIONS
     -d, -database
@@ -35,6 +35,6 @@ EXAMPLES
     go-db-models -o host -d database_name -u username -p password 
 
 INSTALL
-    go get github.com/ibbd-dev/go-db-models
+    go get -u github.com/ibbd-dev/go-db-models
 `
 )

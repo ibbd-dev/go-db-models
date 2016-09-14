@@ -64,6 +64,7 @@ func main() {
 		return
 	}
 
+	// 生成数据库的表结构
 	db_conf := &models.DbConf{
 		Host:     *host,
 		Port:     *port,
@@ -71,13 +72,21 @@ func main() {
 		UserName: *username,
 		Password: *password,
 	}
-
 	tables := db_conf.ShowTables()
-	//fmt.Println(tables)
 
-	_ = models.ParseTablesStruct(tables, *packagename)
-	//fmt.Println(ptables)
+	// 处理model配置文件
+	json_file := flag.Arg(0)
+	var models_conf = &models.JsonConf{}
+	if json_file != "" {
+		models_conf = models.JsonUnmarshal(json_file)
+	}
+	fmt.Println(json_file)
+	fmt.Println(models_conf)
 
+	// 解释数据库的表结构
+	_ = models.ParseTablesStruct(tables, *packagename, models_conf)
+
+	// 格式化生成的代码
 	runFmt()
 	fmt.Println("\nAll is ok!")
 }
@@ -86,10 +95,10 @@ func runFmt() {
 	in := bytes.NewBuffer(nil)
 	cmd := exec.Command("sh")
 	cmd.Stdin = in
-	go func() {
-		in.WriteString("go fmt\n")
-		in.WriteString("exit\n")
-	}()
+	//go func() {
+	in.WriteString("go fmt\n")
+	in.WriteString("exit\n")
+	//}()
 
 	if err := cmd.Run(); err != nil {
 		panic(err)
