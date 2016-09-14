@@ -1,8 +1,14 @@
 {
+    "queryRow": "off",
+    "query": "off",
     "tables": [
         {
             "name": "ad_plan",
-            "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"]
+            "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"],
+            "queryRow": {
+                "params": ["id"]
+            },
+            "query": {}
         },
         {
             "name": "ad_project",
