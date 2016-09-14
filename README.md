@@ -98,3 +98,30 @@ func AdPlanQuery(db *sql.DB, queryString string) (ad_plan []*AdPlanTable, err er
 }
 ```
 
+## Json数据表定义文件
+
+如果只是希望生成部分的数据表，则可以使用该文件。该文件的结构如：
+
+```json
+{
+    // 需要生成的数据表
+    "tables": [
+        {
+            // 数据表的名字
+            "name": "ad_plan",
+            // 需要生成的字段
+            "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"]
+        },
+        {
+            "name": "ad_project",
+            "fields": ["id", "plan_id", "name", "status", "remark"]
+        }
+    ]
+}
+```
+
+## TODO
+
+- 查询缓存
+- 连表查询
+
