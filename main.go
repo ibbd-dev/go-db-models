@@ -10,6 +10,8 @@ import (
 	"github.com/ibbd-dev/go-db-models/models"
 )
 
+var debug = false
+
 func main() {
 	log.SetFlags(0)
 
@@ -35,16 +37,16 @@ func main() {
 	flag.Usage = func() { log.Println(usageText) } // call on flag error
 	flag.Parse()
 
-	//if debug {
-	fmt.Println("**********************************")
-	fmt.Printf("database: %s\n", *database)
-	fmt.Printf("charset: %s\n", *charset)
-	fmt.Printf("username: %s\n", *username)
-	fmt.Printf("password: %s\n", *password)
-	fmt.Printf("host: %s\n", *host)
-	fmt.Printf("port: %d\n", *port)
-	fmt.Println("**********************************")
-	//}
+	if debug {
+		fmt.Println("**********************************")
+		fmt.Printf("database: %s\n", *database)
+		fmt.Printf("charset: %s\n", *charset)
+		fmt.Printf("username: %s\n", *username)
+		fmt.Printf("password: %s\n", *password)
+		fmt.Printf("host: %s\n", *host)
+		fmt.Printf("port: %d\n", *port)
+		fmt.Println("**********************************")
+	}
 
 	if *help {
 		// not an error, send to stdout
@@ -63,6 +65,7 @@ func main() {
 		fmt.Println(versionText)
 		return
 	}
+	fmt.Println("Begin ...")
 
 	// 生成数据库的表结构
 	db_conf := &models.DbConf{
@@ -72,19 +75,36 @@ func main() {
 		UserName: *username,
 		Password: *password,
 	}
-	tables := db_conf.ShowTables()
+	tables, err := db_conf.ShowTables()
+	if err != nil {
+		panic(err)
+	}
 
 	// 处理model配置文件
 	json_file := flag.Arg(0)
 	var models_conf = &models.JsonConf{}
 	if json_file != "" {
-		models_conf = models.JsonUnmarshal(json_file)
+		models_conf, err = models.JsonUnmarshal(json_file)
+		if err != nil {
+			panic(err)
+		}
 	}
-	fmt.Println(json_file)
-	fmt.Println(models_conf)
+
+	if debug {
+		fmt.Println("Input Filename: ", json_file)
+		fmt.Print("Models config: ")
+		fmt.Println(models_conf)
+	}
 
 	// 解释数据库的表结构
-	_ = models.ParseTablesStruct(tables, *packagename, models_conf)
+	ptables, err := models.ParseTablesStruct(tables, *packagename, models_conf)
+	if err != nil {
+		panic(err)
+	}
+	if debug {
+		fmt.Print("Tables after parse: ")
+		fmt.Println(ptables)
+	}
 
 	// 格式化生成的代码
 	runFmt()
@@ -95,10 +115,10 @@ func runFmt() {
 	in := bytes.NewBuffer(nil)
 	cmd := exec.Command("sh")
 	cmd.Stdin = in
-	//go func() {
-	in.WriteString("go fmt\n")
-	in.WriteString("exit\n")
-	//}()
+	go func() {
+		in.WriteString("go fmt\n")
+		in.WriteString("exit\n")
+	}()
 
 	if err := cmd.Run(); err != nil {
 		panic(err)

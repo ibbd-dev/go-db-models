@@ -25,9 +25,12 @@ type ParseField struct {
 }
 
 // 解释数据表的结构体
-func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonConf) (parse_tables []ParseTable) {
+func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonConf) (parse_tables []ParseTable, err error) {
 	// 生成common文件
-	GenCommonFile(package_name)
+	err = GenCommonFile(package_name)
+	if err != nil {
+		return nil, err
+	}
 
 	// 配置的预处理
 	var modelsConfMap = map[string]map[string]bool{}
@@ -59,12 +62,15 @@ func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonCon
 		}
 
 		// 生成代码文件
-		GenFile(ptable)
+		err = GenFile(ptable)
+		if err != nil {
+			return nil, err
+		}
 
 		parse_tables = append(parse_tables, ptable)
 	}
 
-	return parse_tables
+	return parse_tables, nil
 }
 
 // 解释一个数据表的所有字段

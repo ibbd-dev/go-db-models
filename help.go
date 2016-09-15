@@ -1,8 +1,6 @@
 package main
 
 const (
-	debug = true
-
 	versionText = "go-db-models v1.0"
 
 	usageText = `GOMODELSSCAN
@@ -15,7 +13,7 @@ OPTIONS
     -d, -database
         数据库名字
     -c, -charset
-        数据库的编码，默认为：utf8
+        数据库的编码，默认为：utf8 (暂时用不上，默认都是utf8)
     -u, -user
         数据库的用户名
     -p, -password

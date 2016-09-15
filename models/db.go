@@ -31,27 +31,30 @@ type Field struct {
 	Default sql.NullString
 }
 
-func (conf *DbConf) getDb() *sql.DB {
+func (conf *DbConf) getDb() (*sql.DB, error) {
 	// Open database connection
 	conn_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.UserName, conf.Password, conf.Host, conf.Port, conf.DbName)
 
 	db, err := sql.Open("mysql", conn_string)
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
 
 // 对应sql：show tables
-func (conf *DbConf) ShowTables() []Table {
-	db := conf.getDb()
+func (conf *DbConf) ShowTables() ([]Table, error) {
+	db, err := conf.getDb()
+	if err != nil {
+		return nil, err
+	}
 	defer db.Close()
 
 	// Execute the query
 	rows, err := db.Query("show tables")
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -60,28 +63,34 @@ func (conf *DbConf) ShowTables() []Table {
 		t := Table{}
 		err = rows.Scan(&t.Name)
 		if err != nil {
-			panic(err.Error())
+			return nil, err
 		}
 
-		t.Fields = conf.DescTable(t.Name, db)
+		t.Fields, err = conf.DescTable(t.Name, db)
+		if err != nil {
+			return nil, err
+		}
 		tables = append(tables, t)
 	}
 
-	return tables
+	return tables, nil
 
 }
 
 // 对应sql：desc table_name
-func (conf *DbConf) DescTable(table_name string, db *sql.DB) []Field {
+func (conf *DbConf) DescTable(table_name string, db *sql.DB) ([]Field, error) {
 	if db == nil {
-		db := conf.getDb()
+		db, err := conf.getDb()
+		if err != nil {
+			return nil, err
+		}
 		defer db.Close()
 	}
 
 	// Execute the query
 	rows, err := db.Query("desc " + table_name)
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -91,11 +100,11 @@ func (conf *DbConf) DescTable(table_name string, db *sql.DB) []Field {
 		f := Field{}
 		err = rows.Scan(&f.Name, &f.Type, &f.Null, &f.Key, &f.Default, &extra)
 		if err != nil {
-			panic(err.Error())
+			return nil, err
 		}
 
 		fields = append(fields, f)
 	}
 
-	return fields
+	return fields, nil
 }

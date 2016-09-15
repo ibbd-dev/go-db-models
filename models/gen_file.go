@@ -6,17 +6,17 @@ import (
 	"text/template"
 )
 
-func GenCommonFile(package_name string) {
+func GenCommonFile(package_name string) error {
 	out_file := "common_gen.go"
 	fout, err := os.Create(out_file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fout.Close()
 
 	code, err := template.New("gomodels-common").Parse(commonCodeTemplate)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var data = struct {
@@ -26,15 +26,17 @@ func GenCommonFile(package_name string) {
 	}
 
 	if err := code.Execute(fout, data); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func GenFile(table ParseTable) {
+func GenFile(table ParseTable) error {
 	out_file := table.Name + "_tb_gen.go"
 	fout, err := os.Create(out_file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fout.Close()
 
@@ -45,12 +47,14 @@ func GenFile(table ParseTable) {
 	}
 	code, err := template.New("gomodels").Funcs(fnMap).Parse(codeTemplate)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := code.Execute(fout, table); err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // 将下划线分割的字符串改为驼峰格式的字符串
