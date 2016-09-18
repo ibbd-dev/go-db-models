@@ -16,7 +16,7 @@ type {{.Name|Format2StructName}}Table struct {
 {{$v.Name|Format2StructName}}  {{$v.Type}} {{$v.Name|Format2StructTag}}{{end}}
 }
 
-const {{.Name|Format2Title}}SelectFields string = "{{.SelectFields}}"
+const {{.Name|Format2Title}}SelectFields string = " {{.SelectFields}} "
 
 {{if .QueryBy.FieldName}}
 // 查询单行记录（根据某个字段）
@@ -36,8 +36,19 @@ func {{.Name|Format2StructName}}QueryBy{{.QueryBy.FieldName|Format2StructName}}(
 {{end}}
 
 // 查询单行记录
+func {{.Name|Format2StructName}}QueryRowWhere(db *sql.DB, where string) ({{.Name}} *{{.Name|Format2StructName}}Table, err error) {
+	queryString := "SELECT " + {{.Name|Format2Title}}SelectFields + " FROM {{.Name|AddBackquote}} WHERE " + where
+	return do{{.Name|Format2StructName}}QueryRow(db, queryString)
+}
+
+// 查询单行记录
 func {{.Name|Format2StructName}}QueryRow(db *sql.DB, queryString string) ({{.Name}} *{{.Name|Format2StructName}}Table, err error) {
 	queryString = strings.Replace(queryString, SelectFieldsTemp, {{.Name|Format2Title}}SelectFields, 1)
+	return do{{.Name|Format2StructName}}QueryRow(db, queryString)
+}
+
+// 查询单行记录
+func do{{.Name|Format2StructName}}QueryRow(db *sql.DB, queryString string) ({{.Name}} *{{.Name|Format2StructName}}Table, err error) {
 	{{.Name}} = &{{.Name|Format2StructName}}Table{}
 	err = db.QueryRow(queryString).Scan( {{range $k, $v := .Fields}}
 		&{{$.Name}}.{{$v.Name|Format2StructName}},{{end}}
@@ -51,8 +62,19 @@ func {{.Name|Format2StructName}}QueryRow(db *sql.DB, queryString string) ({{.Nam
 }
 
 // 查询多行记录
+func {{.Name|Format2StructName}}QueryWhere(db *sql.DB, where string) ({{.Name}} []*{{.Name|Format2StructName}}Table, err error) {
+	queryString := "SELECT " + {{.Name|Format2Title}}SelectFields + " FROM {{.Name|AddBackquote}} WHERE " + where
+	return do{{.Name|Format2StructName}}Query(db, queryString)
+}
+
+// 查询多行记录
 func {{.Name|Format2StructName}}Query(db *sql.DB, queryString string) ({{.Name}} []*{{.Name|Format2StructName}}Table, err error) {
 	queryString = strings.Replace(queryString, SelectFieldsTemp, {{.Name|Format2Title}}SelectFields, 1)
+	return do{{.Name|Format2StructName}}Query(db, queryString)
+}
+
+// 查询多行记录（执行）
+func do{{.Name|Format2StructName}}Query(db *sql.DB, queryString string) ({{.Name}} []*{{.Name|Format2StructName}}Table, err error) {
 	rows, err := db.Query(queryString)
 	if err != nil {
 		return nil, err
