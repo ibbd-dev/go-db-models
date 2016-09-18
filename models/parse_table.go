@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"strings"
 )
 
@@ -17,6 +18,8 @@ type ParseTable struct {
 	Imports      []string // 需要import的包
 	SelectFields string   // sql查询中的select fields
 	Fields       []ParseField
+
+	QueryBy QueryBy // QueryBy函数，例如QueryById等
 }
 
 type ParseField struct {
@@ -24,21 +27,31 @@ type ParseField struct {
 	Type string // 字段类型，对应golang中的类型，如：uint32, sql.NullString
 }
 
+type QueryBy struct {
+	FieldName string // query by函数的参数名
+	FieldType string // query by函数的参数的类型，如uint32等
+}
+
 // 解释数据表的结构体
-func ParseTablesStruct(tables []Table, package_name string, modelsConf *JsonConf) (parseTables []ParseTable, err error) {
+func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf) (parseTables []ParseTable, err error) {
 	// 生成common文件
-	err = GenCommonFile(package_name)
+	err = GenCommonFile(packageName)
 	if err != nil {
 		return nil, err
 	}
 
 	// 配置的预处理
-	var modelsConfMap = map[string]map[string]bool{}
+	var modelsConfMap = map[string]map[string]bool{} // 第一个下标是表名，第二个下标是字段名
+	var queryByConf = map[string]string{}            // 下标是表名，值是字段名，例如id。
 	if len(modelsConf.Tables) > 0 {
 		for _, tb := range modelsConf.Tables {
 			modelsConfMap[tb.Name] = map[string]bool{}
 			for _, f := range tb.Fields {
 				modelsConfMap[tb.Name][f] = true
+			}
+
+			if tb.QueryBy != "" {
+				queryByConf[tb.Name] = tb.QueryBy
 			}
 		}
 	}
@@ -50,7 +63,7 @@ func ParseTablesStruct(tables []Table, package_name string, modelsConf *JsonConf
 
 		ptable := ParseTable{
 			Name:        table.Name,
-			PackageName: package_name,
+			PackageName: packageName,
 		}
 		ptable.Fields, ptable.Imports, ptable.PrimaryType = ParseFieldsStruct(table.Fields, modelsConfMap[table.Name])
 
@@ -59,6 +72,23 @@ func ParseTablesStruct(tables []Table, package_name string, modelsConf *JsonConf
 		for _, f := range ptable.Fields {
 			ptable.SelectFields += sep + "`" + f.Name + "`"
 			sep = ","
+		}
+
+		// 处理query by
+		if queryByConf[table.Name] != "" {
+			isMatch := false
+			for _, f := range ptable.Fields {
+				if f.Name == queryByConf[table.Name] {
+					isMatch = true
+					ptable.QueryBy.FieldName = f.Name
+					ptable.QueryBy.FieldType = f.Type
+				}
+			}
+
+			if isMatch == false {
+				// query by的字段不在字段列表里
+				return nil, errors.New("ERROR field name: " + queryByConf[table.Name] + " of QueryBy function for table name: " + table.Name)
+			}
 		}
 
 		// 生成代码文件

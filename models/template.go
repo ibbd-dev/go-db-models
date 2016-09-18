@@ -18,6 +18,23 @@ type {{.Name|Format2StructName}}Table struct {
 
 const {{.Name|Format2Title}}SelectFields string = "{{.SelectFields}}"
 
+{{if .QueryBy.FieldName}}
+// 查询单行记录（根据某个字段）
+func {{.Name|Format2StructName}}QueryBy{{.QueryBy.FieldName|Format2StructName}}(db *sql.DB, {{.QueryBy.FieldName|Format2Title}}Val {{.QueryBy.FieldType}}) ({{.Name}} *{{.Name|Format2StructName}}Table, err error) {
+	queryString := "SELECT " + {{.Name|Format2Title}}SelectFields + " FROM {{.Name|AddBackquote}} WHERE {{.QueryBy.FieldName|AddBackquote}} = ?"
+	{{.Name}} = &{{.Name|Format2StructName}}Table{}
+	err = db.QueryRow(queryString, {{.QueryBy.FieldName|Format2Title}}Val).Scan( {{range $k, $v := .Fields}}
+		&{{$.Name}}.{{$v.Name|Format2StructName}},{{end}}
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return {{.Name}}, nil
+}
+{{end}}
+
 // 查询单行记录
 func {{.Name|Format2StructName}}QueryRow(db *sql.DB, queryString string) ({{.Name}} *{{.Name|Format2StructName}}Table, err error) {
 	queryString = strings.Replace(queryString, SelectFieldsTemp, {{.Name|Format2Title}}SelectFields, 1)

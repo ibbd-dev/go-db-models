@@ -7,10 +7,14 @@ import (
 
 // json配置文件的结构定义
 type JsonConf struct {
-	Tables []struct {
-		Name   string
-		Fields []string
-	}
+	Tables []JsonTableConf
+}
+
+// 单个数据表的配置
+type JsonTableConf struct {
+	Name    string   // 表名
+	Fields  []string // 字段名
+	QueryBy string   // QueryBy函数定义
 }
 
 // 将json文件decode成结构体
