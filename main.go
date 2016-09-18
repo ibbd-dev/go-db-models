@@ -68,36 +68,36 @@ func main() {
 	fmt.Println("Begin ...")
 
 	// 生成数据库的表结构
-	db_conf := &models.DbConf{
+	dbConf := &models.DbConf{
 		Host:     *host,
 		Port:     *port,
 		DbName:   *database,
 		UserName: *username,
 		Password: *password,
 	}
-	tables, err := db_conf.ShowTables()
+	tables, err := dbConf.ShowTables()
 	if err != nil {
 		panic(err)
 	}
 
 	// 处理model配置文件
-	json_file := flag.Arg(0)
-	var models_conf = &models.JsonConf{}
-	if json_file != "" {
-		models_conf, err = models.JsonUnmarshal(json_file)
+	jsonFile := flag.Arg(0)
+	var modelsConf = &models.JsonConf{}
+	if jsonFile != "" {
+		modelsConf, err = models.JsonUnmarshal(jsonFile)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	if debug {
-		fmt.Println("Input Filename: ", json_file)
+		fmt.Println("Input Filename: ", jsonFile)
 		fmt.Print("Models config: ")
-		fmt.Println(models_conf)
+		fmt.Println(modelsConf)
 	}
 
 	// 解释数据库的表结构
-	ptables, err := models.ParseTablesStruct(tables, *packagename, models_conf)
+	ptables, err := models.ParseTablesStruct(tables, *packagename, modelsConf)
 	if err != nil {
 		panic(err)
 	}

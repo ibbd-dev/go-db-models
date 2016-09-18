@@ -14,16 +14,16 @@ type JsonConf struct {
 }
 
 // 将json文件decode成结构体
-func JsonUnmarshal(filename string) (json_conf *JsonConf, err error) {
+func JsonUnmarshal(filename string) (jsonConf *JsonConf, err error) {
 	jsonBlob, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(jsonBlob, &json_conf)
+	err = json.Unmarshal(jsonBlob, &jsonConf)
 	if err != nil {
 		return nil, err
 	}
 
-	return json_conf, nil
+	return jsonConf, nil
 }

@@ -25,7 +25,7 @@ type ParseField struct {
 }
 
 // 解释数据表的结构体
-func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonConf) (parse_tables []ParseTable, err error) {
+func ParseTablesStruct(tables []Table, package_name string, modelsConf *JsonConf) (parseTables []ParseTable, err error) {
 	// 生成common文件
 	err = GenCommonFile(package_name)
 	if err != nil {
@@ -34,8 +34,8 @@ func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonCon
 
 	// 配置的预处理
 	var modelsConfMap = map[string]map[string]bool{}
-	if len(models_conf.Tables) > 0 {
-		for _, tb := range models_conf.Tables {
+	if len(modelsConf.Tables) > 0 {
+		for _, tb := range modelsConf.Tables {
 			modelsConfMap[tb.Name] = map[string]bool{}
 			for _, f := range tb.Fields {
 				modelsConfMap[tb.Name][f] = true
@@ -44,7 +44,7 @@ func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonCon
 	}
 
 	for _, table := range tables {
-		if len(models_conf.Tables) > 0 && modelsConfMap[table.Name] == nil {
+		if len(modelsConf.Tables) > 0 && modelsConfMap[table.Name] == nil {
 			continue
 		}
 
@@ -67,16 +67,16 @@ func ParseTablesStruct(tables []Table, package_name string, models_conf *JsonCon
 			return nil, err
 		}
 
-		parse_tables = append(parse_tables, ptable)
+		parseTables = append(parseTables, ptable)
 	}
 
-	return parse_tables, nil
+	return parseTables, nil
 }
 
 // 解释一个数据表的所有字段
-func ParseFieldsStruct(fields []Field, fields_conf map[string]bool) (pfields []ParseField, imports []string, primary_type string) {
+func ParseFieldsStruct(fields []Field, fieldsConf map[string]bool) (pfields []ParseField, imports []string, primaryType string) {
 	for _, f := range fields {
-		if fields_conf != nil && fields_conf[f.Name] == false {
+		if fieldsConf != nil && fieldsConf[f.Name] == false {
 			continue
 		}
 
@@ -103,15 +103,15 @@ func ParseFieldsStruct(fields []Field, fields_conf map[string]bool) (pfields []P
 					prefix = "u"
 				}
 
-				int_type := "int32"
+				intType := "int32"
 				if strings.Contains(f.Type, "tinyint") {
-					int_type = "int8"
+					intType = "int8"
 				} else if strings.Contains(f.Type, "smallint") {
-					int_type = "int16"
+					intType = "int16"
 				} else if strings.Contains(f.Type, "bigint") {
-					int_type = "int64"
+					intType = "int64"
 				}
-				pf.Type = prefix + int_type
+				pf.Type = prefix + intType
 			}
 		} else if strings.Contains(f.Type, "float") {
 			// 浮点数
@@ -146,24 +146,24 @@ func ParseFieldsStruct(fields []Field, fields_conf map[string]bool) (pfields []P
 		pfields = append(pfields, pf)
 	}
 
-	return pfields, imports, primary_type
+	return pfields, imports, primaryType
 }
 
 // 判断是否是字符串
-func isString(field_type string) bool {
-	return strings.Contains(field_type, "text") || strings.Contains(field_type, "char") || strings.Contains(field_type, "binary") || strings.Contains(field_type, "blob")
+func isString(fieldType string) bool {
+	return strings.Contains(fieldType, "text") || strings.Contains(fieldType, "char") || strings.Contains(fieldType, "binary") || strings.Contains(fieldType, "blob")
 }
 
 func importsPush(imports []string, packagename string) []string {
-	is_exists := false
+	isExists := false
 	for _, pn := range imports {
 		if pn == packagename {
-			is_exists = true
+			isExists = true
 			break
 		}
 	}
 
-	if !is_exists {
+	if !isExists {
 		imports = append(imports, packagename)
 	}
 

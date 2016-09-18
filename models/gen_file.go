@@ -6,9 +6,9 @@ import (
 	"text/template"
 )
 
-func GenCommonFile(package_name string) error {
-	out_file := "common_gen.go"
-	fout, err := os.Create(out_file)
+func GenCommonFile(packageName string) error {
+	outFile := "common_gen.go"
+	fout, err := os.Create(outFile)
 	if err != nil {
 		return err
 	}
@@ -22,7 +22,7 @@ func GenCommonFile(package_name string) error {
 	var data = struct {
 		PackageName string
 	}{
-		PackageName: package_name,
+		PackageName: packageName,
 	}
 
 	if err := code.Execute(fout, data); err != nil {
@@ -33,8 +33,8 @@ func GenCommonFile(package_name string) error {
 }
 
 func GenFile(table ParseTable) error {
-	out_file := table.Name + "_tb_gen.go"
-	fout, err := os.Create(out_file)
+	outFile := table.Name + "_tb_gen.go"
+	fout, err := os.Create(outFile)
 	if err != nil {
 		return err
 	}

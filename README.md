@@ -78,20 +78,20 @@ func AdPlanQuery(db *sql.DB, queryString string) (ad_plan []*AdPlanTable, err er
 	defer rows.Close()
 
 	for rows.Next() {
-		var one_row = &AdPlanTable{}
+		var oneRow = &AdPlanTable{}
 		err = rows.Scan(
-			&one_row.Id,
-			&one_row.Name,
-			&one_row.Status,
-			&one_row.DailyBudget,
-			&one_row.StartDate,
-			&one_row.CreatedAt,
+			&oneRow.Id,
+			&oneRow.Name,
+			&oneRow.Status,
+			&oneRow.DailyBudget,
+			&oneRow.StartDate,
+			&oneRow.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		ad_plan = append(ad_plan, one_row)
+		ad_plan = append(ad_plan, oneRow)
 	}
 
 	return ad_plan, nil

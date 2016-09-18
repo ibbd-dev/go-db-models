@@ -43,15 +43,15 @@ func {{.Name|Format2StructName}}Query(db *sql.DB, queryString string) ({{.Name}}
 	defer rows.Close()
 
 	for rows.Next() {
-		var one_row = &{{.Name|Format2StructName}}Table{}
+		var oneRow = &{{.Name|Format2StructName}}Table{}
 		err = rows.Scan( {{range $k, $v := .Fields}}
-			&one_row.{{$v.Name|Format2StructName}},{{end}}
+			&oneRow.{{$v.Name|Format2StructName}},{{end}}
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		{{.Name}} = append({{.Name}}, one_row)
+		{{.Name}} = append({{.Name}}, oneRow)
 	}
 
 	return {{.Name}}, nil
