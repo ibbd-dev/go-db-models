@@ -12,10 +12,10 @@ go get github.com/ibbd-dev/go-db-models
 
 ```sh
 # 生成struct
-go-db-models -o host -d database -u username -p password -n packageName {json-file.json}
+go-db-models -h host -d database -u username -p password -n packageName {json-file.json}
 
 # 帮助
-go-db-models -h
+go-db-models
 ```
 
 生成的文件:

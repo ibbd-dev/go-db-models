@@ -18,7 +18,7 @@ OPTIONS
         数据库的用户名
     -p, -password
         数据库密码
-    -o, -host
+    -h, -host
         数据库的host，默认为：127.0.0.1
     -r, -port
         数据库的端口号，默认为：3306
@@ -26,11 +26,11 @@ OPTIONS
         生成的go文件的包名
     -v, -version
         Print version and exit.
-    -h, -help
+    -e, -help
         Print help and exit.
 
 EXAMPLES
-    go-db-models -o host -d database_name -u username -p password 
+    go-db-models -h host -d database_name -u username -p password 
 
 INSTALL
     go get -u github.com/ibbd-dev/go-db-models

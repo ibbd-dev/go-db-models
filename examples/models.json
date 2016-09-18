@@ -1,6 +1,4 @@
 {
-    "queryRow": "off",
-    "query": "off",
     "tables": [
         {
             "name": "ad_plan",
