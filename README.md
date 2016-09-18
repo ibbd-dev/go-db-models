@@ -127,7 +127,9 @@ func AdProjectQuery(db *sql.DB, queryString string) (ad_project []*AdProjectTabl
             // 数据表的名字
             "name": "ad_plan",
             // 需要生成的字段
-            "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"]
+            "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"],
+            // 这是可选项，如果定义了该字段，则会自动生成一个类似QueryById的查询函数。
+            "queryBy": "id"
         },
         {
             "name": "ad_project",
