@@ -11,6 +11,7 @@ const (
 	packageTime string = "time"
 )
 
+// 经过解释之后的数据表定义，用于生成相应的go文件
 type ParseTable struct {
 	Name         string   // 数据表名，如：ad_plan，对应结构体名为：AdPlanTable，对应文件名为：gen_ad_plan.go
 	PackageName  string   // 生成的程序的包名
@@ -22,11 +23,13 @@ type ParseTable struct {
 	QueryBy QueryBy // QueryBy函数，例如QueryById等
 }
 
+// 字段的定义
 type ParseField struct {
 	Name string // 字段名，如：plan_id。对应到结构体的属性名就是：PlanId
 	Type string // 字段类型，对应golang中的类型，如：uint32, sql.NullString
 }
 
+// 生成QueryBy函数时需要该结构
 type QueryBy struct {
 	FieldName string // query by函数的参数名
 	FieldType string // query by函数的参数的类型，如uint32等
@@ -184,6 +187,7 @@ func isString(fieldType string) bool {
 	return strings.Contains(fieldType, "text") || strings.Contains(fieldType, "char") || strings.Contains(fieldType, "binary") || strings.Contains(fieldType, "blob")
 }
 
+// 增加需要import的package
 func importsPush(imports []string, packagename string) []string {
 	isExists := false
 	for _, pn := range imports {

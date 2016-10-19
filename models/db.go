@@ -31,6 +31,7 @@ type Field struct {
 	Default sql.NullString
 }
 
+// 获取数据库连接
 func (conf *DbConf) getDb() (*sql.DB, error) {
 	// Open database connection
 	conn_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.UserName, conf.Password, conf.Host, conf.Port, conf.DbName)

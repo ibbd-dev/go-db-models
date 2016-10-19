@@ -1,0 +1,106 @@
+PACKAGE DOCUMENTATION
+
+package models
+    import "."
+
+    根据json定义文件，生成查询需要的各种基础数据结构及接口
+
+FUNCTIONS
+
+func AddBackquote(str string) string
+    增加重音符在字符串的前后 sql的字段等都需要
+
+func Format2StructName(str string) string
+    将下划线分割的字符串改为驼峰格式的字符串 如：hello_world => HelloWorld
+
+func Format2StructTag(str string) string
+    格式化输出的结构体的Tag标签 增加重音符及name标签
+
+func Format2Title(str string) string
+    首字母小写
+
+func GenCommonFile(packageName string) error
+    生成公共common_gen.go文件
+
+func GenFile(table ParseTable) error
+    生成各个数据表的go文件
+
+func ParseFieldsStruct(fields []Field, fieldsConf map[string]bool) (pfields []ParseField, imports []string, primaryType string)
+    解释一个数据表的所有字段
+
+func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf) (parseTables []ParseTable, err error)
+    解释数据表的结构体
+
+TYPES
+
+type DbConf struct {
+    Host     string
+    Port     int
+    DbName   string
+    UserName string
+    Password string
+    Charset  string
+}
+    数据库配置
+
+func (conf *DbConf) DescTable(table_name string, db *sql.DB) ([]Field, error)
+    对应sql：desc table_name
+
+func (conf *DbConf) ShowTables() ([]Table, error)
+    对应sql：show tables
+
+type Field struct {
+    Name    string
+    Type    string
+    Null    string
+    Key     string
+    Default sql.NullString
+}
+    字段定义
+
+type JsonConf struct {
+    Tables []JsonTableConf
+}
+    json配置文件的结构定义
+
+func JsonUnmarshal(filename string) (jsonConf *JsonConf, err error)
+    将json文件decode成结构体
+
+type JsonTableConf struct {
+    Name    string   // 表名
+    Fields  []string // 字段名
+    QueryBy string   // QueryBy函数定义
+}
+    单个数据表的配置
+
+type ParseField struct {
+    Name string // 字段名，如：plan_id。对应到结构体的属性名就是：PlanId
+    Type string // 字段类型，对应golang中的类型，如：uint32, sql.NullString
+}
+    字段的定义
+
+type ParseTable struct {
+    Name         string   // 数据表名，如：ad_plan，对应结构体名为：AdPlanTable，对应文件名为：gen_ad_plan.go
+    PackageName  string   // 生成的程序的包名
+    PrimaryType  string   // 主键的类型，如：uint32, sql.NullString等
+    Imports      []string // 需要import的包
+    SelectFields string   // sql查询中的select fields
+    Fields       []ParseField
+
+    QueryBy QueryBy // QueryBy函数，例如QueryById等
+}
+    经过解释之后的数据表定义，用于生成相应的go文件
+
+type QueryBy struct {
+    FieldName string // query by函数的参数名
+    FieldType string // query by函数的参数的类型，如uint32等
+}
+    生成QueryBy函数时需要该结构
+
+type Table struct {
+    Name   string
+    Fields []Field
+}
+    数据表
+
+

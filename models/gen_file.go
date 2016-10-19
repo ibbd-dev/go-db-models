@@ -6,6 +6,7 @@ import (
 	"text/template"
 )
 
+// 生成公共common_gen.go文件
 func GenCommonFile(packageName string) error {
 	outFile := "common_gen.go"
 	fout, err := os.Create(outFile)
@@ -32,6 +33,7 @@ func GenCommonFile(packageName string) error {
 	return nil
 }
 
+// 生成各个数据表的go文件
 func GenFile(table ParseTable) error {
 	outFile := table.Name + "_tb_gen.go"
 	fout, err := os.Create(outFile)
