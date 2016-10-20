@@ -18,9 +18,9 @@ type ParseTable struct {
 	PrimaryType  string   // 主键的类型，如：uint32, sql.NullString等
 	Imports      []string // 需要import的包
 	SelectFields string   // sql查询中的select fields
+	Msg          string   // 表结构的说明
 	Fields       []ParseField
-
-	QueryBy QueryBy // QueryBy函数，例如QueryById等
+	QueryBy      QueryBy // QueryBy函数，例如QueryById等
 }
 
 // 字段的定义
@@ -46,6 +46,7 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 	// 配置的预处理
 	var modelsConfMap = map[string]map[string]bool{} // 第一个下标是表名，第二个下标是字段名
 	var queryByConf = map[string]string{}            // 下标是表名，值是字段名，例如id。
+	var tableConfMsg = map[string]string{}           // 表的注释（在json文件中的）
 	if len(modelsConf.Tables) > 0 {
 		for _, tb := range modelsConf.Tables {
 			modelsConfMap[tb.Name] = map[string]bool{}
@@ -56,6 +57,8 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 			if tb.QueryBy != "" {
 				queryByConf[tb.Name] = tb.QueryBy
 			}
+
+			tableConfMsg[tb.Name] = tb.Msg
 		}
 	}
 
@@ -66,6 +69,7 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 
 		ptable := ParseTable{
 			Name:        table.Name,
+			Msg:         tableConfMsg[table.Name],
 			PackageName: packageName,
 		}
 		ptable.Fields, ptable.Imports, ptable.PrimaryType = ParseFieldsStruct(table.Fields, modelsConfMap[table.Name])

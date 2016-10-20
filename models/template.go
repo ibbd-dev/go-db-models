@@ -11,7 +11,8 @@ import "{{$v}}"{{end}}
 import "strings"
 import "database/sql"
 
-// 对应数据表：{{.Name}}
+// 对应数据表：{{.Name}}{{if .Msg}}
+// {{.Msg}}{{end}}
 type {{.Name|Format2StructName}}Table struct { 
 {{range $k, $v := .Fields}}
 {{$v.Name|Format2StructName}}  {{$v.Type}} {{$v.Name|Format2StructTag}}{{end}}

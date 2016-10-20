@@ -15,6 +15,7 @@ type JsonTableConf struct {
 	Name    string   // 表名
 	Fields  []string // 字段名
 	QueryBy string   // QueryBy函数定义
+	Msg     string   // 表结构说明
 }
 
 // 将json文件decode成结构体
