@@ -64,6 +64,7 @@ func do{{.Name|Format2StructName}}QueryRow(db *sql.DB, queryString string) ({{.N
 }
 
 // 根据where条件查询多行记录
+// 如果查询所有记录，只需要where="1"
 func {{.Name|Format2StructName}}QueryWhere(db *sql.DB, where string) ({{.Name}} []*{{.Name|Format2StructName}}Table, err error) {
 	queryString := "SELECT " + {{.Name|Format2Title}}SelectFields + " FROM {{.Name|AddBackquote}} WHERE " + where
 	return do{{.Name|Format2StructName}}Query(db, queryString)
