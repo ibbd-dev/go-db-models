@@ -135,6 +135,12 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 			return nil, err
 		}
 
+		// 生成代码文件
+		err = GenTestFile(ptable)
+		if err != nil {
+			return nil, err
+		}
+
 		parseTables = append(parseTables, ptable)
 	}
 

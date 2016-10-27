@@ -87,6 +87,7 @@ func do{{.Name|Format2StructName}}Query(db *sql.DB, queryString string) ({{.Name
 	}
 	defer rows.Close()
 
+	{{if .MapIndex.Name}}{{.Name}} = make(map[{{.MapIndex.Type}}]*{{.Name|Format2StructName}}Table){{end}}
 	for rows.Next() {
 		var oneRow = &{{.Name|Format2StructName}}Table{}
 		err = rows.Scan( {{range $k, $v := .Fields}}
@@ -97,10 +98,8 @@ func do{{.Name|Format2StructName}}Query(db *sql.DB, queryString string) ({{.Name
 		}
 
 		{{if .MapIndex.Name}}
-		{{.Name}}[oneRow.{{.MapIndex.Name|Format2StructName}}] = oneRow
-		{{else}}
-		{{.Name}} = append({{.Name}}, oneRow)
-		{{end}}
+		{{.Name}}[oneRow.{{.MapIndex.Name|Format2StructName}}] = oneRow{{else}}
+		{{.Name}} = append({{.Name}}, oneRow){{end}}
 	}
 
 	return {{.Name}}, nil

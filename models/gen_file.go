@@ -60,6 +60,33 @@ func GenFile(table ParseTable) error {
 	return nil
 }
 
+// 生成各个数据表的测试文件：*_tb_gen_test.go
+func GenTestFile(table ParseTable) error {
+	outFile := table.Name + "_tb_gen_test.go"
+	fout, err := os.Create(outFile)
+	if err != nil {
+		return err
+	}
+	defer fout.Close()
+
+	fnMap := template.FuncMap{
+		"AddBackquote":      AddBackquote,
+		"Format2Title":      Format2Title,
+		"Format2StructTag":  Format2StructTag,
+		"Format2StructName": Format2StructName,
+	}
+	code, err := template.New("gomodels").Funcs(fnMap).Parse(testCodeTemplate)
+	if err != nil {
+		return err
+	}
+
+	if err := code.Execute(fout, table); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // 将下划线分割的字符串改为驼峰格式的字符串
 // 如：hello_world => HelloWorld
 func Format2StructName(str string) string {

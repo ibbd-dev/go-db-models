@@ -27,6 +27,7 @@ go-db-models
   - 根据某个字段查询单行记录的函数，例如根据id字段进行查询
   - 多行结果查询函数
   - 返回多行结果时，可以选择生成list（默认）或map格式
+- 单元测试文件`*_tb_gen_test.go`
 
 `*_tb_gen.go`文件样例如下：
 
@@ -112,6 +113,42 @@ func AdProjectQuery(db *sql.DB, queryString string) (ad_project []*AdProjectTabl
 	}
 
 	return ad_project, nil
+}
+```
+
+## 生成单元测试文档
+
+在生成相应的结构和查询函数的同时，也会生成相应的单元测试文件，单元测试文件的文件名如`*_tb_gen_test.go`，连接数据库时，使用了一个`testGetDb`的函数，需要在外部自己实现，如`vim init_test.go`:
+
+```go
+package models
+
+import (
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	testHost     string = "dsp-dev-go"
+	testDB       string = "dsp_sys"
+	testUser     string = "dsp_sys"
+	testPassword string = "Dsp_sys-pwd"
+	testPort     int    = 3306
+)
+
+// 获取数据库连接
+// 单元测试文件会调用该方法获得数据库链接
+func testGetDb() *sql.DB {
+	// Open database connection
+	conn_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", testUser, testPassword, testHost, testPort, testDB)
+
+	db, err := sql.Open("mysql", conn_string)
+	if err != nil {
+		panic(err)
+	}
+
+	return db
 }
 ```
 
