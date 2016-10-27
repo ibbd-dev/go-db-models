@@ -22,7 +22,15 @@ type Table struct {
 	Fields []Field
 }
 
-// 字段定义
+/*
+字段定义
+使用MySQL数据库desc 表名时，我们看到Key那一栏，可能会有4种值，即 ' '，'PRI'，'UNI'，'MUL'。
+
+- 如果Key是空的，那么该列值的可以重复，表示该列没有索引，或者是一个非唯一的复合索引的非前导列；
+- 如果Key是PRI，那么该列是主键的组成部分；
+- 如果Key是UNI，那么该列是一个唯一值索引的第一列（前导列），并别不能含有空值（NULL）；
+- 如果Key是MUL，那么该列的值可以重复，该列是一个非唯一索引的前导列（第一列）或者是一个唯一性索引的组成部分但是可以含有空值NULL。
+*/
 type Field struct {
 	Name    string
 	Type    string

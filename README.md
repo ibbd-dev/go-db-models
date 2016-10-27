@@ -26,6 +26,7 @@ go-db-models
   - 单行结果查询函数
   - 根据某个字段查询单行记录的函数，例如根据id字段进行查询
   - 多行结果查询函数
+  - 返回多行结果时，可以选择生成list（默认）或map格式
 
 `*_tb_gen.go`文件样例如下：
 
@@ -129,6 +130,9 @@ func AdProjectQuery(db *sql.DB, queryString string) (ad_project []*AdProjectTabl
             "fields": ["id", "name", "status", "daily_budget", "start_date", "created_at"],
             // [可选]这是可选项，如果定义了该字段，则会自动生成一个类似QueryById的查询函数。
             "queryBy": "id",
+            // [可选]返回多行数据时，默认返回格式是list，但是可以通过指定该字段，来返回map结构，其下标就是对应的字段的值。
+            // 该字段通常是主键或者唯一索引的字段，否则就可能出现重复值
+            "mapIndex": "id",
             // [可选]结构体增加注释
             "msg": "这是注释。。。"
         },

@@ -12,10 +12,11 @@ type JsonConf struct {
 
 // 单个数据表的配置
 type JsonTableConf struct {
-	Name    string   // 表名
-	Fields  []string // 字段名
-	QueryBy string   // QueryBy函数定义
-	Msg     string   // 表结构说明
+	Name     string   // 表名
+	Fields   []string // 字段名
+	QueryBy  string   // QueryBy函数定义
+	MapIndex string   // 返回map结构时的下标字段名
+	Msg      string   // 表结构说明
 }
 
 // 将json文件decode成结构体

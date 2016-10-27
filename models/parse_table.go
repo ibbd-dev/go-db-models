@@ -15,18 +15,27 @@ const (
 type ParseTable struct {
 	Name         string   // 数据表名，如：ad_plan，对应结构体名为：AdPlanTable，对应文件名为：gen_ad_plan.go
 	PackageName  string   // 生成的程序的包名
-	PrimaryType  string   // 主键的类型，如：uint32, sql.NullString等
+	PrimaryType  string   // 主键的类型，如：uint32, string等
 	Imports      []string // 需要import的包
 	SelectFields string   // sql查询中的select fields
 	Msg          string   // 表结构的说明
 	Fields       []ParseField
 	QueryBy      QueryBy // QueryBy函数，例如QueryById等
+
+	// 如果该字段不为空，则返回多行记录时，是map结构（默认是list结构）
+	// 关联json中的MapIndex字段
+	MapIndex MapIndexField
 }
 
 // 字段的定义
 type ParseField struct {
 	Name string // 字段名，如：plan_id。对应到结构体的属性名就是：PlanId
 	Type string // 字段类型，对应golang中的类型，如：uint32, sql.NullString
+}
+
+type MapIndexField struct {
+	Name string // map下标的字段名
+	Type string // map下标字段的类型
 }
 
 // 生成QueryBy函数时需要该结构
@@ -47,6 +56,7 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 	var modelsConfMap = map[string]map[string]bool{} // 第一个下标是表名，第二个下标是字段名
 	var queryByConf = map[string]string{}            // 下标是表名，值是字段名，例如id。
 	var tableConfMsg = map[string]string{}           // 表的注释（在json文件中的）
+	var mapIndexConf = map[string]string{}           // map下标配置
 	if len(modelsConf.Tables) > 0 {
 		for _, tb := range modelsConf.Tables {
 			modelsConfMap[tb.Name] = map[string]bool{}
@@ -56,6 +66,10 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 
 			if tb.QueryBy != "" {
 				queryByConf[tb.Name] = tb.QueryBy
+			}
+
+			if tb.MapIndex != "" {
+				mapIndexConf[tb.Name] = tb.MapIndex
 			}
 
 			tableConfMsg[tb.Name] = tb.Msg
@@ -95,6 +109,23 @@ func ParseTablesStruct(tables []Table, packageName string, modelsConf *JsonConf)
 			if isMatch == false {
 				// query by的字段不在字段列表里
 				return nil, errors.New("ERROR field name: " + queryByConf[table.Name] + " of QueryBy function for table name: " + table.Name)
+			}
+		}
+
+		// 处理map index
+		if mapIndexConf[table.Name] != "" {
+			isMatch := false
+			for _, f := range ptable.Fields {
+				if f.Name == mapIndexConf[table.Name] {
+					isMatch = true
+					ptable.MapIndex.Name = f.Name
+					ptable.MapIndex.Type = f.Type
+				}
+			}
+
+			if isMatch == false {
+				// query by的字段不在字段列表里
+				return nil, errors.New("ERROR field name: " + mapIndexConf[table.Name] + " of MapIndex for table name: " + table.Name)
 			}
 		}
 
