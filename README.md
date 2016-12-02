@@ -2,10 +2,15 @@
 
 根据配置参数自动创建所有数据表的struct结构，每个结构独立为一个文件。
 
+## 主要功能
+
+- [x] 生成表结构
+- [ ] 将字典表的数据固化在代码里
+
 ## INSTALL
 
 ```sh
-go get github.com/ibbd-dev/go-db-models
+go get -u github.com/ibbd-dev/go-db-models
 ```
 
 ## USAGE
