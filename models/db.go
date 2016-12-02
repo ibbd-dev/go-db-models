@@ -42,7 +42,7 @@ type Field struct {
 // 获取数据库连接
 func (conf *DbConf) getDb() (*sql.DB, error) {
 	// Open database connection
-	conn_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.UserName, conf.Password, conf.Host, conf.Port, conf.DbName)
+	conn_string := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", conf.UserName, conf.Password, conf.Host, conf.Port, conf.DbName)
 
 	db, err := sql.Open("mysql", conn_string)
 	if err != nil {
