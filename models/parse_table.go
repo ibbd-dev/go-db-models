@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -193,15 +195,43 @@ func ParseFieldsStruct(fields []Field, fieldsConf map[string]bool) (pfields []Pa
 				pf.Type = "sql.NullFloat64"
 				//imports = importsPush(imports, packageSql)
 			} else {
-				pf.Type = "float"
+				pf.Type = "float32"
 			}
-		} else if strings.Contains(f.Type, "double") || strings.Contains(f.Type, "decimal") {
+			//println(f.Name, ": ", f.Type, "===>", pf.Type)
+		} else if strings.Contains(f.Type, "double") {
 			// 高精度浮点数
 			if f.Null == "YES" {
 				pf.Type = "sql.NullFloat64"
 				//imports = importsPush(imports, packageSql)
 			} else {
 				pf.Type = "float64"
+			}
+			//println(f.Name, ": ", f.Type, "===>", pf.Type)
+		} else if strings.Contains(f.Type, "decimal") {
+			// 高精度浮点数
+			if f.Null == "YES" {
+				pf.Type = "sql.NullFloat64"
+				//imports = importsPush(imports, packageSql)
+			} else {
+				// 这个时候还需要根据有效位数进行判断
+				re := regexp.MustCompile("decimal.*\\(([0-9]+),")
+				strs := re.FindStringSubmatch(f.Type)
+				if len(strs) != 2 {
+					pf.Type = "float64"
+				} else {
+					// 判断有效位数
+					num, err := strconv.Atoi(strings.TrimSpace(strs[1]))
+					if err != nil {
+						panic(err)
+					}
+
+					if num > 6 {
+						pf.Type = "float64"
+					} else {
+						pf.Type = "float32"
+					}
+				}
+				//println(f.Name, ": ", f.Type, "===>", pf.Type)
 			}
 		} else if strings.Contains(f.Type, "year") {
 			// 年份
